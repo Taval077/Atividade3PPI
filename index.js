@@ -6,6 +6,8 @@ var listaUsuarios = [];
 
 const server = express();
 
+server.use(express.urlencoded({ extended: true }));
+
 // ===== HOME =====
 server.get('/', (req, res) => {
     res.send(`
@@ -174,9 +176,68 @@ server.get('/cadastrar-usuario', (req, res) => {
 });
 
 server.post('/adicionarUsuario', (req, res) => {
-    console.log('Usuário adicionado com sucesso!');
-    listaUsuarios.push();
+    const nome = req.body.nome;
+    const sobrenome = req.body.sobrenome;
+    const usuário = req.body.usuário;
+    const cidade = req.body.Cidade;
+    const uf = req.body.uf;
+    const cep = req.body.cep;
+    listaUsuarios.push({nome, sobrenome, usuário, cidade, uf, cep});
+    res.redirect('/listarUsuarios');
 });
+
+server.get('/listarUsuarios', (req, res) => {
+   let conteudo = `
+<!DOCTYPE html>
+<html lang="pt-br">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Lista de Usuários</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Sobrenome</th>
+                    <th>Usuário</th>
+                    <th>Cidade</th>
+                    <th>UF</th>
+                    <th>CEP</th>
+                </tr>
+            </thead>
+            <tbody>
+   `;
+    listaUsuarios.forEach(usuario => {
+        conteudo += `
+                <tr>
+                    <td>${usuario.nome}</td>
+                    <td>${usuario.sobrenome}</td>
+                    <td>${usuario.usuário}</td>
+                    <td>${usuario.cidade}</td>
+                    <td>${usuario.uf}</td>
+                    <td>${usuario.cep}</td>
+                </tr>
+        `;
+    });
+    conteudo += `
+            </tbody>
+        </table>
+        <a class="btn btn-primary" href="/cadastrar-usuario">Cadastrar Novo Usuário</a>
+        <a class="btn btn-secondary" href="/">Voltar ao Início</a>
+    </div>
+</body>
+</html>
+   `;
+   res.send(conteudo);
+});
+
+// ===== INICIAR SERVIDOR =====     
+
 server.listen(porta, host, () => {
     console.log(`Servidor rodando em http://${host}:${porta}`);
 });
