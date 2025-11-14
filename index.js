@@ -34,8 +34,8 @@ server.get('/', (req, res) => {
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Dropdown</a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/cadastrar-usuario">Cadastro de usuário</a></li>
-                    <li><a class="dropdown-item" href="#">Cadastro de empresa</a></li>
+                    <li><a class="dropdown-item" href="/cadastrar-empresa">Cadastro de empresa</a></li>
+                    <li><a class="dropdown-item" href="/login">Login</a></li>
                 </ul>
             </li>
         </ul>
@@ -48,8 +48,8 @@ server.get('/', (req, res) => {
 `);
 });
 
-// ===== CADASTRAR USUÁRIO =====
-server.get('/cadastrar-usuario', (req, res) => {
+// ===== CADASTRAR EMPRESA =====
+server.get('/cadastrar-empresa', (req, res) => {
     res.send(`
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -62,26 +62,30 @@ server.get('/cadastrar-usuario', (req, res) => {
 <body>
 
 <div class="container mt-5">
-<h2 class="mb-4 text-center">Cadastro de Usuário</h2>
+<h2 class="mb-4 text-center">Cadastro de fornecedor</h2>
 
 <form method="POST" action="/adicionarUsuario" class="row g-3">
 
 <div class="col-md-4">
-<label for="nome" class="form-label">Nome</label>
-<input type="text" class="form-control" id="nome" name="nome">
+<label for="cnpj" class="form-label">CNPJ</label>
+<input type="text" class="form-control" id="cnpj" name="cnpj">
 </div>
 
 <div class="col-md-4">
-<label for="sobrenome" class="">Sobrenome</label>
-<input type="text" class="form-control" id="sobrenome" name="sobrenome">
+<label for="social" class="">Razão social</label>
+<input type="text" class="form-control" id="social" name="social">
 </div>
 
 <div class="col-md-4">
-<label for="usuário" class="form-label">Usuário</label>
+<label for="fantasia" class="form-label">Nome fantasia</label>
 <div class="input-group has-validation">
-<span class="input-group-text" id="inputGroupPrepend">@</span>
-<input type="text" class="form-control" id="usuário" name="usuário">
+<input type="text" class="form-control" id="fantasia" name="fantasia">
 </div>
+</div>
+
+<div class="col-md-6">
+<label for="endereco" class="form-label">Endereço</label>
+<input type="text" class="form-control" id="endereco" name="endereco">
 </div>
 
 <div class="col-md-6">
@@ -129,6 +133,16 @@ server.get('/cadastrar-usuario', (req, res) => {
 <input type="text" class="form-control" id="cep" name="cep">
 </div>
 
+<div class="col-md-3">
+<label for="email" class="form-label">E-mail</label>
+<input type="email" class="form-control" id="email" name="email">
+</div>
+
+<div class="col-md-3">
+<label for="telefone" class="form-label">Telefone</label>
+<input type="text" class="form-control" id="telefone" name="telefone">
+</div>
+
 <div class="col-12">
 <button class="btn btn-primary" type="submit">Cadastrar</button>
 <a class="btn btn-secondary" href="/">Voltar</a>
@@ -145,19 +159,21 @@ server.get('/cadastrar-usuario', (req, res) => {
 
 // ===== POST ADICIONAR USUÁRIO =====
 server.post('/adicionarUsuario', (req, res) => {
-    const nome = req.body.nome;
-    const sobrenome = req.body.sobrenome;
-    const usuário = req.body.usuário;
+    const cnpj = req.body.cnpj;
+    const social = req.body.social;
+    const fantasia = req.body.fantasia;
+    const endereco = req.body.endereco;
+    const email = req.body.email;
+    const telefone = req.body.telefone;
     const cidade = req.body.Cidade;
     const uf = req.body.uf;
     const cep = req.body.cep;
 
-    if (nome && sobrenome && usuário && cidade && uf && cep) {
-        listaUsuarios.push({ nome, sobrenome, usuário, cidade, uf, cep });
+    if (cnpj && social && fantasia && cidade && uf && cep && email && telefone && endereco) {
+        listaUsuarios.push({ cnpj, social, fantasia, cidade, uf, cep, email, telefone, endereco });
         return res.redirect('/listarUsuarios');
     }
 
-    // MONTAR HTML COM OS IF ENTRE OS DIVS
     let conteudo = `
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -173,34 +189,31 @@ server.post('/adicionarUsuario', (req, res) => {
 
 <form method="POST" action="/adicionarUsuario" class="row g-3">`;
 
-    // ===== NOME =====
+    // Razão social
     conteudo += `
 <div class="col-md-4">
-<label class="form-label">Nome</label>
-<input type="text" class="form-control" name="nome" value="${nome ?? ""}">
+<label class="form-label">Razão social</label>
+<input type="text" class="form-control" name="social" value="${social ?? ""}">
 </div>`;
-    if (!nome) conteudo += `<div class="text-danger">Por favor, preencha o campo Nome.</div>`;
+    if (!social) conteudo += `<div class="text-danger">Por favor, preencha o campo Razão social.</div>`;
 
-    // ===== SOBRENOME =====
+    // Nome fantasia
     conteudo += `
 <div class="col-md-4">
-<label>Sobrenome</label>
-<input type="text" class="form-control" name="sobrenome" value="${sobrenome ?? ""}">
+<label>Nome fantasia</label>
+<input type="text" class="form-control" name="fantasia" value="${fantasia ?? ""}">
 </div>`;
-    if (!sobrenome) conteudo += `<div class="text-danger">Por favor, preencha o campo Sobrenome.</div>`;
+    if (!fantasia) conteudo += `<div class="text-danger">Por favor, preencha o campo Nome fantasia.</div>`;
 
-    // ===== USUÁRIO =====
+    // CNPJ
     conteudo += `
 <div class="col-md-4">
-<label>Usuário</label>
-<div class="input-group">
-<span class="input-group-text">@</span>
-<input type="text" class="form-control" name="usuário" value="${usuário ?? ""}">
-</div>
+<label>CNPJ</label>
+<input type="text" class="form-control" name="cnpj" value="${cnpj ?? ""}">
 </div>`;
-    if (!usuário) conteudo += `<div class="text-danger">Por favor, preencha o campo Usuário.</div>`;
+    if (!cnpj) conteudo += `<div class="text-danger">Por favor, preencha o campo CNPJ.</div>`;
 
-    // ===== CIDADE =====
+    // Cidade
     conteudo += `
 <div class="col-md-6">
 <label>Cidade</label>
@@ -208,7 +221,15 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!cidade) conteudo += `<div class="text-danger">Por favor, preencha o campo Cidade.</div>`;
 
-    // ===== UF =====
+    // Endereço
+    conteudo += `
+<div class="col-md-6">
+<label>Endereço</label>
+<input type="text" class="form-control" name="endereco" value="${endereco ?? ""}">
+</div>`;
+    if (!endereco) conteudo += `<div class="text-danger">Por favor, preencha o campo Endereço.</div>`;
+
+    // UF
     conteudo += `
 <div class="col-md-3">
 <label>UF</label>
@@ -246,7 +267,7 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!uf) conteudo += `<div class="text-danger">Por favor, preencha o campo UF.</div>`;
 
-    // ===== CEP =====
+    // CEP
     conteudo += `
 <div class="col-md-3">
 <label>CEP</label>
@@ -254,6 +275,22 @@ server.post('/adicionarUsuario', (req, res) => {
 </div>`;
     if (!cep) conteudo += `<div class="text-danger">Por favor, preencha o campo CEP.</div>`;
 
+    // E-mail
+    conteudo += `
+<div class="col-md-6">
+<label>E-mail</label>
+<input type="email" class="form-control" name="email" value="${email ?? ""}">
+</div>`;
+    if (!email) conteudo += `<div class="text-danger">Por favor, preencha o campo E-mail.</div>`;
+
+    // Telefone
+    conteudo += `
+<div class="col-md-6">
+<label>Telefone</label>
+<input type="text" class="form-control" name="telefone" value="${telefone ?? ""}">
+</div>`;
+    if (!telefone) conteudo += `<div class="text-danger">Por favor, preencha o campo Telefone.</div>`;
+    
     conteudo += `
 <div class="col-12">
 <button class="btn btn-primary" type="submit">Cadastrar</button>
@@ -288,12 +325,14 @@ server.get('/listarUsuarios', (req, res) => {
 <table class="table table-striped">
 <thead>
 <tr>
-<th>Nome</th>
-<th>Sobrenome</th>
-<th>Usuário</th>
+<th>CNPJ</th>
+<th>Razão Social</th>
+<th>Nome Fantasia</th>
 <th>Cidade</th>
 <th>UF</th>
 <th>CEP</th>
+<th>E-mail</th>
+<th>Telefone</th>
 </tr>
 </thead>
 <tbody>`;
@@ -301,12 +340,14 @@ server.get('/listarUsuarios', (req, res) => {
     listaUsuarios.forEach(usuario => {
         conteudo += `
 <tr>
-<td>${usuario.nome}</td>
-<td>${usuario.sobrenome}</td>
-<td>${usuario.usuário}</td>
+<td>${usuario.cnpj}</td>
+<td>${usuario.social}</td>
+<td>${usuario.fantasia}</td>
 <td>${usuario.cidade}</td>
 <td>${usuario.uf}</td>
 <td>${usuario.cep}</td>
+<td>${usuario.email}</td>
+<td>${usuario.telefone}</td>
 </tr>`;
     });
 
@@ -314,7 +355,7 @@ server.get('/listarUsuarios', (req, res) => {
 </tbody>
 </table>
 
-<a class="btn btn-primary" href="/cadastrar-usuario">Cadastrar Novo Usuário</a>
+<a class="btn btn-primary" href="/cadastrar-empresa">Cadastrar Nova empresa</a>
 <a class="btn btn-secondary" href="/">Voltar ao Início</a>
 
 </div>
@@ -325,7 +366,103 @@ server.get('/listarUsuarios', (req, res) => {
     res.send(conteudo);
 });
 
+// ===== LOGIN e LOGOUT =====
+server.get('/login', (req, res) => {
+    res.send(`
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+<h2 class="mb-4 text-center">Login</h2>
+
+<form method="POST" action="/login" class="row g-3">
+
+<div class="col-12">
+<label class="form-label">E-mail</label>
+<input type="email" class="form-control" name="email">
+</div>
+
+<div class="col-12">
+<label class="form-label">Senha</label>
+<input type="password" class="form-control" name="senha">
+</div>
+
+<div class="col-12">
+<button class="btn btn-primary" type="submit">Entrar</button>
+<a class="btn btn-secondary" href="/">Voltar</a>
+</div>
+
+</form>
+</div>
+</body>
+</html>
+`);
+});
+server.post('/login', (req, res) => {
+  
+    const email = req.body.email;
+    const senha = req.body.senha;
+
+    if (email && senha) {
+        return res.send(`<h2>Login bem-sucedido!</h2><a href="/">Voltar ao Início</a>`);
+    }
+    let loginInvalido = `
+    <!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+<h2 class="mb-4 text-center">Login</h2>
+
+<form method="POST" action="/login" class="row g-3">
+
+<div class="col-12">
+<label class="form-label">E-mail</label>
+<input type="email" class="form-control" name="email">
+</div>`;
+if(!email){
+    loginInvalido += `<div class="text-danger">Por favor, preencha o campo E-mail.</div>`;
+}
+loginInvalido += `
+
+<div class="col-12">
+<label class="form-label">Senha</label>
+<input type="password" class="form-control" name="senha">
+</div>`;
+if(!senha){
+    loginInvalido += `<div class="text-danger">Por favor, preencha o campo Senha.</div>`;
+}  
+loginInvalido += `
+
+<div class="col-12">
+<button class="btn btn-primary" type="submit">Entrar</button>
+<a class="btn btn-secondary" href="/">Voltar</a>
+</div>
+</form>
+</div>
+</body>
+</html>
+`;
+
 // ===== INICIAR SERVIDOR =====
 server.listen(porta, host, () => {
     console.log(`Servidor rodando em http://${host}:${porta}`);
 });
+    return res.send(loginInvalido);
+});
+
+// ===== INICIAR SERVIDOR =====
+server.listen(porta, host, () => {
+    console.log(`Servidor rodando em http://${host}:${porta}`);
+}); 
